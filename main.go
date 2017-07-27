@@ -8,16 +8,24 @@ import (
 	"syscall"
 	"os/signal"
 	"log"
+	"flag"
 )
 
 func main() {
 
-	const dir string = "/home/rhys/watchthis"
-	const port string = "8080"
+	dir := flag.String("cache-dir", "", "The cache directory to watch")
+	port := flag.String("port", "8080", "Port to listen on")
+
+	flag.Parse()
+
+	if *dir == "" {
+		fmt.Println("cache-dir is mandatory")
+		os.Exit(1)
+	}
 
 	cache := NewCache()
-	watcher := NewWatcher(dir, cache)
-	server := NewServer(cache, port)
+	watcher := NewWatcher(*dir, cache)
+	server := NewServer(cache, *port)
 
 	/* cleanup before exiting */
 	defer watcher.Close()
